@@ -1,0 +1,83 @@
+version: "3.7"
+
+# networks:
+  # elasicsearch-debezium-mongo:
+    # driver: bridge
+
+services:
+  mongo-0:
+    image: mongo
+    container_name: mongo-0
+    command: "mongod --bind_ip_all --replSet ${MONGO_REPLICA_SET_NAME} --keyFile /data/file.key"
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_USERNAME=${MONGO_INITDB_USERNAME}
+      - MONGO_INITDB_PASSWORD=${MONGO_INITDB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGO_REPLICA_SET_NAME=${MONGO_REPLICA_SET_NAME}
+    volumes:
+      - ./scripts/file.key:/data/file.key
+      - ./scripts/setup.sh:/docker-entrypoint-initdb.d/setup.sh
+    env_file:
+      - .env
+    # healthcheck:
+      # test: "[ -f /data/health.check ] && exit 0 || exit 1"
+      # interval: 30s
+      # timeout: 30s
+      # retries: 1
+    restart: always
+    
+  monstache:
+    image: rwynn/monstache
+    container_name: c-monstache
+    working_dir: /app
+    command: -f ./monstache.test.config.toml
+    volumes:
+      - $PWD/monstache.test.config.toml:/app/monstache.test.config.toml
+    depends_on:
+      - mongo-0
+      - elasticsearch
+    #environment:
+    #  - MONSTACHE_MONGO_URL=mongo-0:27017
+    #  - MONSTACHE_ES_URLS=http://es7:9200
+    ports:
+      - "8181:8181"
+    expose:
+      - "8181"
+    # healthcheck:
+      # test: "wget -q -O - http://localhost:8080/healthz"
+      # interval: 30s
+      # timeout: 30s
+      # retries: 300
+    restart: always
+ 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=datasearch
+      - discovery.type=single-node
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    #  - ./elasticsearch/elasticsearch.config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"
+    expose:
+      - "9200"
+    depends_on:
+      - mongo-0
+    # healthcheck:
+      # test: "wget -q -O - http://elasticsearch:9200/_cat/health"
+      # interval: 30s
+      # timeout: 30s
+      # retries: 300
+    restart: always
