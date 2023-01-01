@@ -66,3 +66,5 @@ PUT /_settings
 
 
 ## Connect to database
+- `mongodb://test:test@ip-server:27017/tempdb?replicaSet=rs0&directConnection=true`
+- `mongodb://root:admin@ip-server:27017/?replicaSet=rs0&directConnection=true`
