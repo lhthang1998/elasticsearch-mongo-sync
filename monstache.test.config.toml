@@ -1,6 +1,6 @@
 gzip = true
 
-mongo-url = "mongodb://root:admin@mongo-0:27017"
+mongo-url = "mongodb://root:admin@mongo-0:27017/?directConnection=true"
 
 elasticsearch-urls = ["http://elasticsearch:9200"]
 

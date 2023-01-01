@@ -8,7 +8,14 @@ services:
   mongo-0:
     image: mongo
     container_name: mongo-0
-    command: "mongod --bind_ip_all --replSet ${MONGO_REPLICA_SET_NAME} --keyFile /data/file.key"
+    command: "/usr/bin/mongod --bind_ip_all --replSet rs0 --keyFile /data/file.key"
+    entrypoint:
+      - bash
+      - -c
+      - |
+        chmod 400 /data/file.key
+        chown 999:999 /data/file.key
+        exec docker-entrypoint.sh $$@
     ports:
       - "27017:27017"
     environment:
@@ -19,10 +26,13 @@ services:
       - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
       - MONGO_REPLICA_SET_NAME=${MONGO_REPLICA_SET_NAME}
     volumes:
+      - ./mongodb/data:/data/db
       - ./scripts/file.key:/data/file.key
       - ./scripts/setup.sh:/docker-entrypoint-initdb.d/setup.sh
     env_file:
       - .env
+    networks:
+      - search_engine
     # healthcheck:
       # test: "[ -f /data/health.check ] && exit 0 || exit 1"
       # interval: 30s
@@ -47,6 +57,8 @@ services:
       - "8181:8181"
     expose:
       - "8181"
+    networks:
+      - search_engine
     # healthcheck:
       # test: "wget -q -O - http://localhost:8080/healthz"
       # interval: 30s
@@ -67,7 +79,7 @@ services:
       - ES_JAVA_OPTS=-Xms750m -Xmx750m
       - bootstrap.memory_lock=true
     volumes:
-      - ./elasticsearch/data:/usr/share/elasticsearch/data
+      - ./elasticsearch/data:/var/lib/elasticsearch/data
     #  - ./elasticsearch/elasticsearch.config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - "9200:9200"
@@ -75,9 +87,15 @@ services:
       - "9200"
     depends_on:
       - mongo-0
+    networks:
+      - search_engine
     # healthcheck:
       # test: "wget -q -O - http://elasticsearch:9200/_cat/health"
       # interval: 30s
       # timeout: 30s
       # retries: 300
     restart: always
+
+networks:
+  search_engine:
+    external: true

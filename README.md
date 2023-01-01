@@ -9,6 +9,7 @@ sudo chown 999:999 file.key
 ```
 2. Run
 ```
+docket network create search_engine
 docker-compose up -d --remove-orphans
 ```
 
@@ -62,3 +63,6 @@ PUT /_settings
         "number_of_replicas" : 0
     }
 }
+
+
+## Connect to database
