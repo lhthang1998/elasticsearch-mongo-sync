@@ -35,10 +35,10 @@ direct-read-namespaces = ["tempdb.task"]
 #mongo-validate-pem-file = false
 
 # use the following user name for Elasticsearch basic auth
-#elasticsearch-user = "someuser"
+elasticsearch-user = "elastic"
 
 # use the following password for Elasticsearch basic auth
-#elasticsearch-password = "somepassword"
+elasticsearch-password = "test"
 
 # use 4 go routines concurrently pushing documents to Elasticsearch
 #elasticsearch-max-conns = 4 

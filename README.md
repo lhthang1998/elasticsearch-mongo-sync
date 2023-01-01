@@ -1,4 +1,5 @@
-# Docker compose for MongoDB with Replica set
+# Search Engine
+Elasticsearch + MongoDB
 
 ## Steps
 1. Prepare key by run these commands
@@ -17,6 +18,10 @@ docker-compose up -d --remove-orphans
 If you want to run with multiple container mongo. Please duplicate serivce mongo-0 with different mapping ports (but keeps the port in docker) and different name
 For example
 ```
+ services:
+   ...
+   mongo-1:
+    container_name: mongo-1
     ports:
       - "27018:27017"
     expose: 
@@ -37,12 +42,22 @@ MONGODB2=mongo-1
             "priority": 2
         },
         {
-            "_id": 0,
+            "_id": 1,
             "host": "${MONGODB2}:27017",
             "priority": 2
         },
     ]
 ```
+
+## Elasticsearch authentication
+- Tag `xpack.security.enabled` must be `true`
+- And add your username and password
+- ![example-request.png](request.png)
+- In file `monstache.test.config.toml` enable `elasticsearch-user` + `elasticsearch-password`
+
+## Connect to database
+- `mongodb://test:test@ip-server:27017/tempdb?replicaSet=rs0&directConnection=true`
+- `mongodb://root:admin@ip-server:27017/?replicaSet=rs0&directConnection=true`
 
 ## Helpful
 List all indexes
@@ -59,12 +74,7 @@ To solve cluster health: yellow issue
 
 PUT /_settings
 {
-  "index" : {
-        "number_of_replicas" : 0
-    }
+"index" : {
+"number_of_replicas" : 0
 }
-
-
-## Connect to database
-- `mongodb://test:test@ip-server:27017/tempdb?replicaSet=rs0&directConnection=true`
-- `mongodb://root:admin@ip-server:27017/?replicaSet=rs0&directConnection=true`
+}
