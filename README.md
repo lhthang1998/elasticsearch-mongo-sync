@@ -51,7 +51,7 @@ MONGODB2=mongo-1
 
 ## Elasticsearch authentication
 - Tag `xpack.security.enabled` must be `true`
-- And add your username and password
+- And add your username (default is `elastic`: recommend does not change this username) and password
 - ![example-request.png](request.png)
 - In file `monstache.test.config.toml` enable `elasticsearch-user` + `elasticsearch-password`
 
