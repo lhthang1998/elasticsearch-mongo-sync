@@ -101,7 +101,6 @@ services:
     depends_on:
       - elasticsearch
       - mongo-0
-      - monstache
     networks:
       - search_engine
     restart: always
