@@ -51,15 +51,13 @@ services:
     #  - MONSTACHE_ES_URLS=http://es7:9200
     ports:
       - "8181:8181"
-    expose:
-      - "8181"
     networks:
       - search_engine
-    # healthcheck:
-      # test: "wget -q -O - http://localhost:8080/healthz"
-      # interval: 30s
-      # timeout: 30s
-      # retries: 300
+#     healthcheck:
+#       test: "wget -q -O - http://localhost:8080/healthz"
+#       interval: 30s
+#       timeout: 30s
+#       retries: 300
     restart: always
  
   elasticsearch:
@@ -82,8 +80,6 @@ services:
     #  - ./elasticsearch/elasticsearch.config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - "9200:9200"
-    expose:
-      - "9200"
     depends_on:
       - mongo-0
     networks:
@@ -104,6 +100,8 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+      - mongo-0
+      - monstache
     networks:
       - search_engine
     restart: always
